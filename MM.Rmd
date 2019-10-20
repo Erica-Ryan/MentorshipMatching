@@ -1,0 +1,97 @@
+---
+title: "Mentorship Matching: An Exploration"
+output: html_document
+---
+```{r setup, include=FALSE}
+library(reticulate)
+```
+
+
+Mentorship programs are a great way for young new employees to learn from their more experienced colleagues, but it is also a great way for more seasoned employees to widen their perspective.
+
+But how do you design an effective mentorship program? Well, one of the key aspects of a well functioning mentorship program is a good matching system that is fair to participants but also maximizes mentor/mentee compatability. That is the question I am exploring in this code. 
+
+```{python}
+import pandas as pd
+
+#This file has the results of a survey that revealed the preferences of the mentees
+prefs = pd.read_csv('preferences_sample.csv')
+
+#This file has the maximum number of mentees each mentor is willing to take on
+#mentormax = pd.read_csv('') 
+
+#This file can be included if we are doing multiple rounds of mentor matching. Ideally we should have a pdf that has a list of all the previous mentee's and whether or not they are participating in the rematching/staying with their current mentor 
+#prevcounts = pd.read_csv('') for reading in the previous counts
+
+prefs = prefs.set_index(list(prefs)[0])
+```
+
+```{python}
+prefs.describe()
+```
+
+####Setup
+
+Let's take a look at the data. This is a sample created by assigning a random integer between 0-10 to each mentor for 3 mentees. Another interesting area for research could be in the actual compatability scoring process. It'd be important to ensure that the compatability scores are also as unbiased as is feasible. 
+
+```{python}
+prefs
+```
+We first want to do some setup for our match making process: 
+
+```{python}
+#Pairings is the final list of pairings and their compatability scores
+pairings=[] 
+
+#Counts is the number of mentees per mentor 
+counts={} 
+
+#Maxvalues is the maximum compatability score per mentee
+maxvalues={} 
+
+#mentormax is the max number of mentees a mentor will take on
+mentormax={}
+
+#this makes a counter for the number of mentee's per mentor and a list of the max number of mentee's a mentor is willing to take on. It currently sets everyone to 2.When we have a survey, we can change this to an adaptive list.
+for i in range(len(prefs.index)):
+  counts[prefs.index[i]] = 0
+  mentormax[prefs.index[i]] = 2
+```
+
+We want to set a count to the number of mentees that we have in order to determine how many times we need to assign mentees to mentors. Another area to look into is what to do in a world in which the number of mentees exceeds the number of mentors (or the max number of mentees that the mentors are willing to take on). Additionally, it could be interesting to test thresholds for when someone will/won't be assigned to a mentor. I don't currently know the answer to the question: is any mentor better than no mentor? As someone without a formal mentor, I hesitantly suggest the answer is maybe?
+
+```{python}
+count=len(list(prefs))
+count
+```
+
+Now we want to sort the preferences of our mentees in order to prepare for matching. 
+For each mentee, we sort their preferences in descending order and assign the highest compatability score to their individual max value. We then compare the max value to their second highest compatability score. We continue to do this through all of their compatability scores. This allows us to understand their preferences from the perspective of asking the question "how much do they have to lose by not getting their top preference?" Now we are going to actually match the mentors and the mentees. 
+
+```{python}
+for i in range(count):
+    alldata={}
+    temp={}
+    for column in prefs:
+        sorts = prefs.sort_values(by=column, ascending=False)
+        if i == 0:
+            maxvalues[column]=sorts[column][0]
+            difference=sorts[column][0]-sorts[column][1]
+        else:
+            difference=maxvalues[column]- sorts[column][0] 
+        alldata[column] = [sorts[column], difference]
+        temp[column] = [alldata[column][0].keys()[0], alldata[column][0][0], difference]
+    first=pd.DataFrame.transpose(pd.DataFrame(data=temp)).sort_values(by=[2,1], ascending=False)
+    pairings.append([first.index[0], first[0][0], first[1][0]])
+    
+    counts[first[0][0]] += 1
+    prefs=prefs.drop([first.index[0]], axis=1)
+    if counts[first[0][0]] >= mentormax[first[0][0]]:
+      prefs=prefs.drop([first[0][0]], axis=0)
+```
+
+```{python}
+pairings
+```
+
+So the next step would be to begin to analyze this pairing method. Another method might be to pair first by top preference, and if there is a tie, whoever has the higher second choice gets their second choice. But this is all for further research. [This is in progress code, check back for updates]
