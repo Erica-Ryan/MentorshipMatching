@@ -56,14 +56,13 @@ mentormax={}
 #this makes a counter for the number of mentee's per mentor and a list of the max number of mentee's a mentor is willing to take on. It currently sets everyone to 2.When we have a survey, we can change this to an adaptive list.
 for i in range(len(prefs.index)):
   counts[prefs.index[i]] = 0
-  mentormax[prefs.index[i]] = 2
+  mentormax[prefs.index[i]] = 1
 ```
 
 We want to set a count to the number of mentees that we have in order to determine how many times we need to assign mentees to mentors. Another area to look into is what to do in a world in which the number of mentees exceeds the number of mentors (or the max number of mentees that the mentors are willing to take on). Additionally, it could be interesting to test thresholds for when someone will/won't be assigned to a mentor. I don't currently know the answer to the question: is any mentor better than no mentor? As someone without a formal mentor, I hesitantly suggest the answer is maybe?
 
 ```{python}
 count=len(list(prefs))
-count
 ```
 
 Now we want to sort the preferences of our mentees in order to prepare for matching. 

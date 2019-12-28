@@ -244,11 +244,9 @@ mentormax={}
 #this makes a counter for the number of mentee's per mentor and a list of the max number of mentee's a mentor is willing to take on. It currently sets everyone to 2.When we have a survey, we can change this to an adaptive list.
 for i in range(len(prefs.index)):
   counts[prefs.index[i]] = 0
-  mentormax[prefs.index[i]] = 2</code></pre>
+  mentormax[prefs.index[i]] = 1</code></pre>
 <p>We want to set a count to the number of mentees that we have in order to determine how many times we need to assign mentees to mentors. Another area to look into is what to do in a world in which the number of mentees exceeds the number of mentors (or the max number of mentees that the mentors are willing to take on). Additionally, it could be interesting to test thresholds for when someone will/won’t be assigned to a mentor. I don’t currently know the answer to the question: is any mentor better than no mentor? As someone without a formal mentor, I hesitantly suggest the answer is maybe?</p>
-<pre class="python"><code>count=len(list(prefs))
-count</code></pre>
-<pre><code>## 5</code></pre>
+<pre class="python"><code>count=len(list(prefs))</code></pre>
 <p>Now we want to sort the preferences of our mentees in order to prepare for matching. For each mentee, we sort their preferences in descending order and assign the highest compatability score to their individual max value. We then compare the max value to their second highest compatability score. We continue to do this through all of their compatability scores. This allows us to understand their preferences from the perspective of asking the question “how much do they have to lose by not getting their top preference?” Now we are going to actually match the mentors and the mentees.</p>
 <pre class="python"><code>for i in range(count):
     alldata={}
@@ -270,7 +268,7 @@ count</code></pre>
     if counts[first[0][0]] &gt;= mentormax[first[0][0]]:
       prefs=prefs.drop([first[0][0]], axis=0)</code></pre>
 <pre class="python"><code>pairings</code></pre>
-<pre><code>## [['p1', 'm8', 10], ['p2', 'm8', 9], ['p3', 'm1', 9], ['p4', 'm1', 8], ['p5', 'm9', 8]]</code></pre>
+<pre><code>## [['p1', 'm8', 10], ['p2', 'm7', 8], ['p3', 'm1', 9], ['p4', 'm6', 8], ['p5', 'm9', 8]]</code></pre>
 <p>So the next step would be to begin to analyze this pairing method. Another method might be to pair first by top preference, and if there is a tie, whoever has the higher second choice gets their second choice. But this is all for further research. [This is in progress code, check back for updates]</p>
 </div>
 
